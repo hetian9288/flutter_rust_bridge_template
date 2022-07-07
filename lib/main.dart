@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'ffi.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,14 +50,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // These futures belong to the state and are only initialized once,
   // in the initState method.
-  late Future<Platform> platform;
   late Future<bool> isRelease;
 
   @override
   void initState() {
     super.initState();
-    platform = api.platform();
-    isRelease = api.rustReleaseMode();
   }
 
   @override
@@ -103,43 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
             // Here, the generic type that the FutureBuilder manages is
             // explicitly named, because if omitted the snapshot will have the
             // type of AsyncSnapshot<Object?>.
-            FutureBuilder<List<dynamic>>(
-              // We await two unrelated futures here, so the type has to be
-              // List<dynamic>.
-              future: Future.wait([platform, isRelease]),
-              builder: (context, snap) {
-                final style = Theme.of(context).textTheme.headline4;
-                if (snap.error != null) {
-                  // An error has been encountered, so give an appropriate response and
-                  // pass the error details to an unobstructive tooltip.
-                  debugPrint(snap.error.toString());
-                  return Tooltip(
-                    message: snap.error.toString(),
-                    child: Text('Unknown OS', style: style),
-                  );
-                }
-
-                // Guard return here, the data is not ready yet.
-                final data = snap.data;
-                if (data == null) return const CircularProgressIndicator();
-
-                // Finally, retrieve the data expected in the same order provided
-                // to the FutureBuilder.future.
-                final Platform platform = data[0];
-                final release = data[1] ? 'Release' : 'Debug';
-                final text = const {
-                      Platform.Android: 'Android',
-                      Platform.Ios: 'iOS',
-                      Platform.MacApple: 'MacOS with Apple Silicon',
-                      Platform.MacIntel: 'MacOS',
-                      Platform.Windows: 'Windows',
-                      Platform.Unix: 'Unix',
-                      Platform.Wasm: 'the Web',
-                    }[platform] ??
-                    'Unknown OS';
-                return Text('$text ($release)', style: style);
-              },
-            )
+            Text('flutter + rust ffi',
+                style: Theme.of(context).textTheme.headline4),
           ],
         ),
       ),
